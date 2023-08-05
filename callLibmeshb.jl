@@ -1,4 +1,15 @@
-using Printf
+
+module libMeshb
+
+export Mesh, readMesh
+
+struct Mesh
+    version::Integer
+    dimension::Integer
+    nodes::Array{AbstractFloat,2}
+    triagnles::Array{Integer,2}
+    edges::Array{Integer,2}
+end
 
 # Get entity sizes so mesh data arrays can be preallocated
 function readMeshInfo(meshFileName::AbstractString)
@@ -24,7 +35,7 @@ function readMeshInfo(meshFileName::AbstractString)
 end
 
 # Get entity sizes so mesh data arrays can be preallocated
-function readMesh(meshFileName::AbstractString,nNodes::Integer,nTriangles::Integer,nEdges::Integer)
+function readMeshData(meshFileName::AbstractString,nNodes::Integer,nTriangles::Integer,nEdges::Integer)
 
     # Create arrays controled by Julia to be modifed by C 
     nodes = Array{Cdouble,2}(undef,4,nNodes)
@@ -50,6 +61,25 @@ function readMesh(meshFileName::AbstractString,nNodes::Integer,nTriangles::Integ
     return (nodesOut,trianglesOut,edgesOut)
 end
 
+function readMesh(meshFileName::AbstractString)
 
-(version,dimension,nNodes,nTriangles,nEdges) = readMeshInfo("examples/naca0012.meshb");
-(nodes,triangles,edges) = readMesh("examples/naca0012.meshb",nNodes,nTriangles,nEdges);
+    # Check that mesh file exists
+    if !isfile(meshFileName)
+        println("""Mesh file "$meshFileName" not found.""")
+        return 1
+    end
+    
+    # Read mesh information
+    (version,dimension,nNodes,nTriangles,nEdges) = readMeshInfo(meshFileName)
+
+    # Read mesh data
+    (nodes,triangles,edges) = readMeshData(meshFileName,nNodes,nTriangles,nEdges);
+
+    return Mesh(version,dimension,nodes,triangles,edges)
+
+end
+
+end
+
+# meshFileName = "examples/naca0012.mesh"
+# mesh = readMesh(meshFileName)

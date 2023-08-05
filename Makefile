@@ -15,7 +15,7 @@ C_OBJ := $(C_SRCS:%.c=%.o)
 # Build Gamma class object
 all: ${LBM_OBJ} ${C_OBJ}
 	${CC} -o readTriMesh readTriMesh.o libMeshb/libmeshb7.o
-	${CC} -shared -fPIC -o readTriMesh readTriMesh.c libMeshb/libmeshb7.c
+	${CC} -shared -fPIC -o readTriMesh.so readTriMesh.c libMeshb/libmeshb7.c
 
 # Build Gamma class object from source
 C_OBJ: ${C_SRCS}
