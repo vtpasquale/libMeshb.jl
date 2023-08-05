@@ -9,7 +9,7 @@ int readMeshInfo(char *meshFileName, int *ver, int *dim, int *nNodes,int *nTrian
     int64_t LibIdx;
 
     // Open the mesh file for reading
-    LibIdx = GmfOpenMesh(meshFileName, GmfRead, &ver, &dim );
+    LibIdx = GmfOpenMesh(meshFileName, GmfRead, ver, dim );
 
     // Get the numbers of entities
     *nNodes = GmfStatKwd( LibIdx, GmfVertices  );
