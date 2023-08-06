@@ -60,6 +60,61 @@ int readMesh(char *meshFileName,int nNodes,int nTriangles,int nEdges,double (*no
     return 0;
 }
 
+int readSolutionInfo(char *meshFileName, int *thisVer, int *thisDim, int *NbrLin, int *SolSiz)
+{
+    int64_t idx;
+    int NbrTyp, TypTab[ GmfMaxTyp ];
+
+    /* Try to open the file and ensure its version is 3
+    (double precision reals) and dimension is 2 */
+    idx = GmfOpenMesh(meshFileName, GmfRead, thisVer, thisDim);
+    if (!idx)
+    {
+        printf("Cannot open mesh/solution file %s\n", meshFileName);
+        return 1;
+    }
+    *NbrLin = GmfStatKwd(idx, GmfSolAtVertices, &NbrTyp, SolSiz, TypTab);
+    printf("NbrLin = %d, NmbTyp = %d, SolSiz = %d\n", *NbrLin, NbrTyp, *SolSiz);
+
+    // SolTab = malloc( NbrLin*SolSiz * sizeof(double)   );
+
+    // // Solution field block reading
+    // GmfGetBlock(idx, GmfSolAtVertices, 1, NbrLin, 0, NULL, NULL,
+    //             GmfDoubleVec, SolSiz, &SolTab[0], &SolTab[(NbrLin*SolSiz)-1]);
+
+    // Print each solutions of each vertices
+    // for (i = 0; i < NbrLin; i++)
+    // {
+    //     printf("%f %f %f %f\n", SolTab[i * SolSiz + 0], SolTab[i * SolSiz + 1], SolTab[i * SolSiz + 2], SolTab[i * SolSiz + 3]);
+    // }
+
+    // Close the mesh file
+    GmfCloseMesh(idx);
+
+    return 0;
+}
+
+int readSolutionData(char *meshFileName, double (*SolTab)[1])
+{
+    int i;
+
+    int64_t idx;
+    int verTemp, dimTemp, NbrLin, SolSiz, NbrTyp, TypTab[ GmfMaxTyp ];
+
+    // Open the mesh file for reading
+    idx = GmfOpenMesh(meshFileName, GmfRead, &verTemp, &dimTemp );
+    NbrLin = GmfStatKwd(idx, GmfSolAtVertices, &NbrTyp, &SolSiz, TypTab);
+
+    // Solution field block reading
+    GmfGetBlock(idx, GmfSolAtVertices, 1, NbrLin, 0, NULL, NULL,
+                GmfDoubleVec, SolSiz, SolTab[0], SolTab[(NbrLin*SolSiz)-1]);
+
+    // Close the mesh file !
+    GmfCloseMesh( idx );
+
+    return 0;
+}
+
 // Main used for testing methods in C before interfacing with Julia.
 // The memory for shared variables will be allocated by Julia and 
 // modifed by this C library. 
