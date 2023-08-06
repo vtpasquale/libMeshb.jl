@@ -105,12 +105,47 @@ int readSolutionData(char *meshFileName, double (*SolTab)[1])
     idx = GmfOpenMesh(meshFileName, GmfRead, &verTemp, &dimTemp );
     NbrLin = GmfStatKwd(idx, GmfSolAtVertices, &NbrTyp, &SolSiz, TypTab);
 
+    // // Print data
+    // printf("meshFileName: %s\n",meshFileName);
+    // printf("ver: %d\n",verTemp);
+    // printf("NbrTyp: %d\n",NbrTyp);
+    // printf("SolSiz: %d\n",SolSiz);
+    // for(int i=0;i<10;i++)
+    //     printf("  TypTab[]=%d\n",TypTab[i]);
+
     // Solution field block reading
     GmfGetBlock(idx, GmfSolAtVertices, 1, NbrLin, 0, NULL, NULL,
                 GmfDoubleVec, SolSiz, SolTab[0], SolTab[(NbrLin*SolSiz)-1]);
 
     // Close the mesh file !
     GmfCloseMesh( idx );
+
+    return 0;
+}
+
+int writeSolutionData(char *outFileName, int ver, int dim, int NbrLin, int SolSiz, double (*SolTab)[1])
+{
+    int64_t OutMsh;
+    OutMsh = GmfOpenMesh(outFileName, GmfWrite, ver, dim);
+    if (!OutMsh)
+    {
+        printf("Issue accessing %s for writing output\n", outFileName);
+        return 1;
+    }
+
+    // Hardcode solution type to all scalar doubles
+    int NbrTyp = SolSiz;
+    int TypTab[ GmfMaxTyp ];
+    for(int i=0;i<SolSiz;i++)
+        TypTab[i]=1;
+
+    // Write data
+    GmfSetKwd(OutMsh, GmfSolAtVertices, NbrLin, NbrTyp, &TypTab);  
+
+    GmfSetBlock(OutMsh, GmfSolAtVertices, 1, NbrLin, 0, NULL, NULL,
+         GmfDoubleVec, SolSiz, &SolTab[0], &SolTab[(NbrLin*SolSiz)-1]);
+
+    GmfCloseMesh(OutMsh);
 
     return 0;
 }
@@ -135,29 +170,37 @@ int main(int argc, char *argv[])
 
     readMesh(argv[1], nNodes, nTriangles, nEdges, nodes, triangles, edges);
     
-    printf("\nFirst Nodes\n");
-    for(i=0;i<3;i++)
-        printf("%f,%f,%f,%f\n",nodes[i][0],nodes[i][1],nodes[i][2],nodes[i][3]);
+    // int NbrLin = nNodes;
+    // int SolSiz = 1;
+    // double (*SolTab)[1];
+    // SolTab = malloc( nNodes * sizeof(double)   );
+    // for(i=0;i<nNodes;i++)
+    //     *SolTab[i] = nodes[i][0];
+    // writeSolutionData("testout.sol", ver, dim, NbrLin, SolSiz, SolTab);
 
-    printf("\nLast Nodes\n");
-    for(int i=nNodes-3;i<nNodes;i++)
-        printf("%f,%f,%f,%f\n",nodes[i][0],nodes[i][1],nodes[i][2],nodes[i][3]);
+    // printf("\nFirst Nodes\n");
+    // for(i=0;i<3;i++)
+    //     printf("%f,%f,%f,%f\n",nodes[i][0],nodes[i][1],nodes[i][2],nodes[i][3]);
 
-    printf("\nFirst Triangles\n");
-    for(i=0;i<3;i++)
-        printf("%d,%d,%d,%d\n",triangles[i][0],triangles[i][1],triangles[i][2],triangles[i][3]);
+    // printf("\nLast Nodes\n");
+    // for(int i=nNodes-3;i<nNodes;i++)
+    //     printf("%f,%f,%f,%f\n",nodes[i][0],nodes[i][1],nodes[i][2],nodes[i][3]);
+
+    // printf("\nFirst Triangles\n");
+    // for(i=0;i<3;i++)
+    //     printf("%d,%d,%d,%d\n",triangles[i][0],triangles[i][1],triangles[i][2],triangles[i][3]);
     
-    printf("\nLast Triangles\n");
-    for(i=nTriangles-3;i<nTriangles;i++)
-        printf("%d,%d,%d,%d\n",triangles[i][0],triangles[i][1],triangles[i][2],triangles[i][3]);
+    // printf("\nLast Triangles\n");
+    // for(i=nTriangles-3;i<nTriangles;i++)
+    //     printf("%d,%d,%d,%d\n",triangles[i][0],triangles[i][1],triangles[i][2],triangles[i][3]);
 
-    printf("\nFirst Edges\n");
-    for(i=0;i<3;i++)
-        printf("%d,%d,%d\n",edges[i][0],edges[i][1],edges[i][2]);
+    // printf("\nFirst Edges\n");
+    // for(i=0;i<3;i++)
+    //     printf("%d,%d,%d\n",edges[i][0],edges[i][1],edges[i][2]);
     
-    printf("\nLast Edges\n");
-    for(i=nEdges-3;i<nEdges;i++)
-        printf("%d,%d,%d\n",edges[i][0],edges[i][1],edges[i][2]);        
+    // printf("\nLast Edges\n");
+    // for(i=nEdges-3;i<nEdges;i++)
+    //     printf("%d,%d,%d\n",edges[i][0],edges[i][1],edges[i][2]);        
 
     return 0;
     

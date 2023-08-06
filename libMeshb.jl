@@ -1,7 +1,7 @@
 
 module libMeshb
 
-export Mesh, readMesh, readSolution
+export Mesh, readMesh, readSolution, writeSolution
 
 struct Mesh
     version::Integer

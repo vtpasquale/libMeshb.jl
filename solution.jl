@@ -52,3 +52,29 @@ function readSolution(solutionFileName::AbstractString)
     return readSolutionData(solutionFileName,nLines,nResults)
 
 end
+
+# For multiple results sets
+function writeSolution(solutionFileName::AbstractString,version::Integer,dimension::Integer,solutionMatrix::Array{Float64,2})
+
+    # pack solution to 1D array
+    nLines = size(solutionMatrix,1)
+    nResults = size(solutionMatrix,2)
+    solution = Array{Float64}(undef,nLines*nResults)
+    for i in 1:nResults
+        solution[i:nResults:nResults*nLines-(nResults-i)] = solutionMatrix[:,i]
+    end
+    
+    callWriteSolution(solutionFileName::AbstractString,version::Integer,dimension::Integer,nLines::Integer,nResults::Integer,solution::Array{Float64,1})
+end
+
+# For single results set
+function writeSolution(solutionFileName::AbstractString,version::Integer,dimension::Integer,solution::Array{Float64,1})
+    nLines = size(solution,1)
+    nResults = 1
+    callWriteSolution(solutionFileName::AbstractString,version::Integer,dimension::Integer,nLines::Integer,nResults::Integer,solution::Array{Float64,1})
+end
+
+function callWriteSolution(solutionFileName::AbstractString,version::Integer,dimension::Integer,nLines::Integer,nResults::Integer,solution::Array{Float64,1})
+    solutionRef = pointer(solution)
+    rv = @ccall "./readTriMesh.so".writeSolutionData(solutionFileName::Cstring,version::Cint,dimension::Cint,nLines::Cint,nResults::Cint,solutionRef::Ptr{Array{Cdouble}})::Cint
+end
